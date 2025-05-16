@@ -22,6 +22,12 @@ namespace cAlgo
         
         [Output("BearishLine", LineColor = "#EF5350", PlotType = PlotType.DiscontinuousLine, Thickness = 3)]
         public IndicatorDataSeries BearishLine { get; set; }
+
+        [Parameter("Draw Candles", DefaultValue = true)]
+        public bool DrawCandles { get; set; }
+
+        [Parameter("Draw Trend Lines", DefaultValue = true)]
+        public bool DrawTrendLines { get; set; }
         
         private Bars _bars;
         public IndicatorDataSeries SwingDirection { get; set; }
@@ -96,7 +102,12 @@ namespace cAlgo
             double lowPrice = _bars.LowPrices[swingIndex];
 
             UpdateSwingState(highPrice, lowPrice);
-            AssignLine(index);
+
+            if (DrawCandles)
+                DrawCandle(index);
+
+            if (DrawTrendLines)
+                DrawLine(index);
 
             SwingDirection[index] = _upswing;
             SwingValue[index] = _upswing == 1 ? _highestLow : _lowestHigh;
@@ -128,12 +139,20 @@ namespace cAlgo
             }
         }
 
-        private void AssignLine(int index)
+        private void DrawLine(int index)
         {
             if (_upswing == 1)
                 BullishLine[index] = _highestLow;
             else
                 BearishLine[index] = _lowestHigh;
+        }
+
+        private void DrawCandle(int index)
+        {
+            if (_upswing == 1)
+                Chart.SetBarColor(index, "#26A69A");
+            else
+                Chart.SetBarColor(index, "#EF5350");
         }
     }
 }
